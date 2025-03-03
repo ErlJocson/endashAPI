@@ -1,4 +1,4 @@
-from flask import jsonify, abort
+from flask import jsonify, abort, request
 from . import app, db
 from .models import Cards
 
@@ -21,12 +21,36 @@ def get_one_card(uid):
 
 @app.route('/api/add-card', methods=['POST'])
 def add_card():
-    return
+    if request.method == "POST":
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"Error":"Data are missing"})
+
+        if "order" not in data or "name" not in data or "link" not in data or "icon" not in data or "video" not in data:
+            return jsonify({"Error":"Incomplete data"})
+        
+        new_card = Cards(
+            order   = data['order'],
+            name    = data['name'],
+            link    = data['link'],
+            icon    = data['icon'],
+            video   = data['video']
+        )
+
+        db.session.add(new_card)
+        db.session.commit()
+        return jsonify({"Message":"New Card is added"})
 
 
 @app.route('/api/delete-card/<int:uid>', methods=['DELETE'])
 def delete_card(uid):
-    return
+    card = Cards.query.filter_by(uid=uid).first()
+    if card:
+        db.session.delete(card)
+        db.session.commit()
+        return jsonify({"Message":"Card Deleted Successfully"})
+    return jsonify({"Error":"Card Not Found"})
 
 
 @app.route('/api/update-card/<int:uid>', methods=['PUT'])
