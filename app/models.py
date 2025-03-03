@@ -5,6 +5,7 @@ class Cards(db.Model):
     order = db.Column(db.Integer, unique=True)
     name = db.Column(db.String(254), unique=True)
     link = db.Column(db.String(254), unique=True)
+    icon = db.Column(db.LargeBinary)
     video = db.Column(db.LargeBinary, unique=True)
 
     def to_dict(self):
