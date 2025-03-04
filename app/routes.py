@@ -5,7 +5,7 @@ from .models import Cards
 
 @app.route('/api/all-cards', methods=['GET'])
 def get_cards():
-    cards = db.session.execute(db.select(Cards).order_by(Cards.order)).scalars().all()
+    cards = db.session.execute(db.select(Cards)).scalars().all()
     return jsonify([card.to_dict() for card in cards])
 
 
@@ -21,26 +21,33 @@ def get_one_card(uid):
 
 @app.route('/api/add-card', methods=['POST'])
 def add_card():
-    if request.method == "POST":
-        data = request.get_json()
+    if "order" not in request.form or "name" not in request.form or "link" not in request.form:
+        return jsonify({"Error": "Incomplete data"}), 400
+    
+    order = request.form["order"]
+    name = request.form["name"]
+    link = request.form["link"]
+    icon = request.files["icon"] 
+    video = request.files["video"]
 
-        if not data:
-            return jsonify({"Error":"Data are missing"})
+    if not icon or not video:
+        return jsonify({"Error": "Missing file uploads"}), 400
 
-        if "order" not in data or "name" not in data or "link" not in data or "icon" not in data or "video" not in data:
-            return jsonify({"Error":"Incomplete data"})
-        
-        new_card = Cards(
-            order   = data['order'],
-            name    = data['name'],
-            link    = data['link'],
-            icon    = data['icon'],
-            video   = data['video']
-        )
+    icon_data = icon.read()
+    video_data = video.read()
 
-        db.session.add(new_card)
-        db.session.commit()
-        return jsonify({"Message":"New Card is added"})
+    new_card = Cards(
+        order=order,
+        name=name,
+        link=link,
+        icon=icon_data,
+        video=video_data
+    )
+
+    db.session.add(new_card)
+    db.session.commit()
+    
+    return jsonify({"Message": "New Card is added"})
 
 
 @app.route('/api/delete-card/<int:uid>', methods=['DELETE'])
