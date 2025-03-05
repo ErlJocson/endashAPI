@@ -62,5 +62,22 @@ def delete_card(uid):
 
 @app.route('/api/update-card/<int:uid>', methods=['PUT'])
 def update_card(uid):
-    return
+    data = request.get_json()
 
+    if not data:
+        return jsonify({"Error": "No data provided"})
+
+    card = "" # TODO: filter the card
+
+    if not card:
+        return jsonify({"Error": "Card does not exist"})
+    
+    # TODO: update the card from here
+
+
+    return jsonify(
+            {
+                "Message":"Card updated successfully",
+                "card": data
+            }
+        )
