@@ -67,13 +67,20 @@ def update_card(uid):
     if not data:
         return jsonify({"Error": "No data provided"})
 
-    card = "" # TODO: filter the card
+    card = Cards.query.get(uid) # TODO: filter this properly
 
     if not card:
         return jsonify({"Error": "Card does not exist"})
     
     # TODO: update the card from here
 
+    card.order = data['order']
+    card.name = data['name']
+    card.link = data['link']
+    card.icon = data['icon']
+    card.video = data['video']
+
+    db.session.commit()
 
     return jsonify(
             {
